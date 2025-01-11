@@ -133,3 +133,59 @@ ks_results <- data.frame(
 )
 
 print(ks_results)
+###
+###
+###
+# Load required libraries
+library(fitdistrplus)
+
+# Assume data_set_12 is a numeric vector
+values <- as.numeric(data_set_12[[1]])
+
+# Fit the Gamma distribution
+gamma_fit <- fitdist(values, "gamma")
+
+# Perform Kolmogorov-Smirnov test for goodness-of-fit
+ks_gamma <- ks.test(values, "pgamma", shape = gamma_fit$estimate["shape"], rate = gamma_fit$estimate["rate"])
+
+# Extract results
+filled_data <- data.frame(
+  Data_Set = "data set 12",
+  Distribution = "Gamma",
+  Shape_Loc = gamma_fit$estimate["shape"],
+  Scale = 1 / gamma_fit$estimate["rate"], # Scale is the inverse of rate
+  KS_Test_Stat = ks_gamma$statistic,
+  KS_Test_p_value = ks_gamma$p.value
+)
+
+print(filled_data)
+###
+###
+### QQ plot for dataset12 gamma dist
+###
+###
+###
+# Load required libraries
+library(fitdistrplus)
+library(ggplot2)
+
+# Assume 'data' is a data frame and we're analyzing the first column
+column_data <- values
+
+# Fit the Gamma distribution to the column data
+gamma_fit <- fitdist(values, "gamma")
+
+# Extract the estimated parameters
+shape_param <- gamma_fit$estimate["shape"]
+rate_param <- gamma_fit$estimate["rate"]  # Rate is 1/scale in R
+scale_param <- 1 / rate_param  # Convert rate to scale
+
+# Generate the theoretical quantiles
+theoretical_quantiles <- qgamma(ppoints(length(column_data)), shape = shape_param, rate = rate_param)
+
+# Generate the Q-Q plot
+qqplot(theoretical_quantiles, column_data,
+       main = "Dataset 12 QQ Plot for Gamma Distribution (Fitted Parameters)",
+       xlab = "Theoretical Quantiles",
+       ylab = "Sample Quantiles")
+abline(0, 1, col = "red", lwd = 2)
